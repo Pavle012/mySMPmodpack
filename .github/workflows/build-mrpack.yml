@@ -2,23 +2,6 @@ name: Build .mrpack files
 
 on:
   workflow_dispatch:
-    inputs:
-      minecraft_version:
-        description: 'Minecraft Version'
-        required: true
-        default: '1.21.1'
-      loader:
-        description: 'Mod Loader'
-        required: true
-        default: 'neoforge'
-      loader_version:
-        description: 'Loader Version'
-        required: true
-        default: '21.1.25'
-      pack_version:
-        description: 'Pack Version'
-        required: true
-        default: '1.0.0'
 
 jobs:
   build:
@@ -59,25 +42,9 @@ jobs:
               echo "Using existing index.json from overrides folder"
               mv "$tmp_dir/overrides/index.json" "$tmp_dir/index.json"
             else
-              echo "Generating index.json automatically"
-              # Create a nice name from the directory name (e.g., overrides_client -> Overrides Client)
-              pack_name=$(echo "$dirname" | sed 's/_/ /g' | sed -e 's/\b\(.\)/\u\1/g')
-              full_pack_name="${{ github.event.repository.name }} - ${pack_name}"
-              
-              cat <<EOF > "$tmp_dir/index.json"
-          {
-            "formatVersion": 1,
-            "game": "minecraft",
-            "versionId": "${{ github.event.inputs.pack_version }}",
-            "name": "${full_pack_name}",
-            "summary": "Modpack for ${{ github.event.inputs.minecraft_version }} built from ${dirname}",
-            "files": [],
-            "dependencies": {
-              "minecraft": "${{ github.event.inputs.minecraft_version }}",
-              "${{ github.event.inputs.loader }}": "${{ github.event.inputs.loader_version }}"
-            }
-          }
-          EOF
+              echo "Error: No modrinth.index.json or index.json found in $dir. Skipping."
+              rm -rf "$tmp_dir"
+              continue
             fi
             
             # Create the ZIP (.mrpack)

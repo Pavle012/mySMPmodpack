@@ -49,11 +49,17 @@ jobs:
               cp "LICENSE" "$tmp_dir/"
             fi
             
-            # Create index.json if it doesn't exist
-            if [ -f "$tmp_dir/overrides/index.json" ]; then
-              echo "Using existing index.json from $dir"
+            # Check for modrinth.index.json in the source directory
+            if [ -f "$dir/modrinth.index.json" ]; then
+              echo "Using already included modrinth.index.json from $dir"
+              cp "$dir/modrinth.index.json" "$tmp_dir/index.json"
+              # Ensure it doesn't end up inside the overrides folder too
+              rm -f "$tmp_dir/overrides/modrinth.index.json"
+            elif [ -f "$tmp_dir/overrides/index.json" ]; then
+              echo "Using existing index.json from overrides folder"
               mv "$tmp_dir/overrides/index.json" "$tmp_dir/index.json"
             else
+              echo "Generating index.json automatically"
               # Create a nice name from the directory name (e.g., overrides_client -> Overrides Client)
               pack_name=$(echo "$dirname" | sed 's/_/ /g' | sed -e 's/\b\(.\)/\u\1/g')
               full_pack_name="${{ github.event.repository.name }} - ${pack_name}"

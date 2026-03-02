@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "game": "minecraft",
+  "versionId": "1.0.0",
+  "name": "mySMPmodpack - Overrides Server",
+  "summary": "Modpack for 1.21.1 built from overrides_server",
+  "files": [],
+  "dependencies": {
+    "minecraft": "1.21.1",
+    "neoforge": "21.1.25"
+  }
+}

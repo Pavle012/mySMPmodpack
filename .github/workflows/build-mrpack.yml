@@ -32,17 +32,21 @@ jobs:
               cp "LICENSE" "$tmp_dir/"
             fi
             
-            # Check for modrinth.index.json in the source directory
+            # Resolve the index.json for the mrpack
             if [ -f "$dir/modrinth.index.json" ]; then
-              echo "Using already included modrinth.index.json from $dir"
+              echo "Using $dir/modrinth.index.json"
               cp "$dir/modrinth.index.json" "$tmp_dir/index.json"
-              # Ensure it doesn't end up inside the overrides folder too
               rm -f "$tmp_dir/overrides/modrinth.index.json"
-            elif [ -f "$tmp_dir/overrides/index.json" ]; then
-              echo "Using existing index.json from overrides folder"
-              mv "$tmp_dir/overrides/index.json" "$tmp_dir/index.json"
+            elif [ -f "modrinth.index.json" ]; then
+              echo "Using root modrinth.index.json and updating its name"
+              # Create a nice name from the directory name (e.g., overrides_client -> Overrides Client)
+              pack_name=$(echo "$dirname" | sed 's/_/ /g' | sed -e 's/\b\(.\)/\u\1/g')
+              full_pack_name="${{ github.event.repository.name }} - ${pack_name}"
+              
+              # Use the root file but update the name field
+              jq --arg name "$full_pack_name" '.name = $name' modrinth.index.json > "$tmp_dir/index.json"
             else
-              echo "Error: No modrinth.index.json or index.json found in $dir. Skipping."
+              echo "Error: No modrinth.index.json found in $dir or root. Skipping."
               rm -rf "$tmp_dir"
               continue
             fi
